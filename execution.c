@@ -6,7 +6,7 @@
 /*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 15:38:01 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/04/10 18:03:48 by mazaroua         ###   ########.fr       */
+/*   Updated: 2023/04/11 00:56:51 by mazaroua         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,75 +98,73 @@ void execute_command_2(t_cmd_line **cmd_line, t_env_list **env_list)
 	}
 }
 
-void dup_pipe(int **fd, int i, int cmds)
+void dup_to_pipe(int **fd, int i, int cmds)
 {
 	if (i == 0)
 	{
-		dup2(fd[i][1], STDOUT_FILENO);
-		
+		dup2(fd[i][1], 1);
+		close(fd[i][1]);
 	}
-	if (i > 0)
+	else if (i + 1 == cmds)
 	{
-		if (i + 1 == cmds)
-		{
-			dup2(fd[i - 1][0], STDIN_FILENO);
-		
-		}
-		else
-		{
-			dup2(fd[i - 1][0], STDIN_FILENO);
-			dup2(fd[i][1], STDOUT_FILENO);
-		}			
+		dup2(fd[i - 1][0], 0);
+		close(fd[i - 1][0]);
+	}
+	else if (i > 0 && i + 1 < cmds)
+	{
+		dup2(fd[i - 1][0], 0);
+		dup2(fd[i][1], 1);
+		close(fd[i - 1][0]);
+		close(fd[i][1]);
 	}
 }
 
-
-void execute_command(t_cmd_line **cmd_line, t_env_list **env_list)
+void	close_pipes(int **fd, int i, int cmds, int flag)
 {
-	t_cmd_line 		*cmd_tmp;
-	int 		cmds;
-	int 		**fd;
-	int 		i;
-	int 		j;
+	if (flag != 1)
+		return ;
+	if (i == 0)
+		close(fd[i][1]);
+	else if (i + 1 == cmds)
+		close(fd[i - 1][0]);
+	else if (i > 0 && i + 1 < cmds)
+	{
+		close(fd[i][1]);
+		close(fd[i - 1][0]);
+	}
+}
 
-	cmd_tmp = *cmd_line;
-	cmds = count_list(cmd_line);
-	fd = malloc(sizeof(int *) * (cmds - 1));
-	i = 0;
+void execute_command(t_cmd_line **cmd_line, t_env_list **env_list, int **fd)
+{
+	t_cmd_line *cmd_tmp = *cmd_line;
+	int no_file;
+	t_redirections	*l_infile = last_infile(cmd_line, &no_file);
+	if (!no_file)
+		return ;
+	t_redirections	*l_outfile = last_outfile(cmd_line);
+	int i = 0;
 	int flg = 0;
+	pid_t	pid;
 	while (cmd_tmp)
 	{
 		if (cmd_tmp->separator == e_pipe)
 		{
-			fd[i] = malloc(sizeof(int) * 2);
 			pipe(fd[i]);
 			flg = 1;
 		}
-		if (fork() == 0)
+		if (!(pid = fork()))
 		{
+			if (l_outfile)
+				dup_outfile(l_outfile);
 			if (flg)
-			{
-				dup_pipe(fd[i], i, cmds);
-				j = i;
-				while (j >= 0)
-				{
-					close(fd[j][0]);
-					close(fd[j][1]);
-					j--;
-				}
-			}
+				dup_to_pipe(fd, i, count_list(cmd_line));
 			execute_command_2(&cmd_tmp, env_list);
 		}
+		close_pipes(fd , i, count_list(cmd_line), flg);
 		cmd_tmp = cmd_tmp->next;
 		i++;
 	}
-	i = i - 2;
-	while (i>=0)
-	{
-		close(fd[i][0]);
-		close(fd[i][1]);
-		i--;
-	}
+	//while (pid = waitpid(-1, NULL, 0) > 0);
 	while (wait(0) != -1);
 }
 
@@ -176,7 +174,10 @@ void execution(t_cmd_line **cmd_line, t_env_list **env_list)
 	//     execute_builtins(cmd_line, env_list);
 	if ((*cmd_line))
 	{
-
-		execute_command(cmd_line, env_list);
+		int **fd = malloc(sizeof(int *) * count_list(cmd_line));
+		int i = 0;
+		while (i < count_list(cmd_line))
+			fd[i++] = malloc(sizeof(int) * 2);
+		execute_command(cmd_line, env_list, fd);
 	}
 }

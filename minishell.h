@@ -107,19 +107,20 @@ int				to_alloc_count(t_token_list **tokens);
 
 // Execution
 void    execution(t_cmd_line **cmd_line, t_env_list **env_list);
-int main_builtins(t_cmd_line **cmd_line);
+int     main_builtins(t_cmd_line **cmd_line);
 void    execute_builtins(t_cmd_line **cmd_line, t_env_list **env_list);
-int	builtins(char	*cmd);
+int	    builtins(char	*cmd);
 void	exec_builtins(char	**str, t_env_list **env_list, int code);
 
 char    *get_home_var(t_env_list **env_list);
 char	**get_path(t_env_list **env_list);
-int count_list(t_cmd_line **cmd_line);
+int     count_list(t_cmd_line **cmd_line);
 
 void	ft_cd(char *path, t_env_list **env_list);
 void    ft_pwd(void);
-
-t_redirections  *last_in(t_redirections **redirections_);
+t_redirections  *last_outfile(t_cmd_line **cmd_line);
+t_redirections  *last_infile(t_cmd_line **cmd_line, int *no_file);
+dup_outfile(t_redirections *redirection);
 
 
 

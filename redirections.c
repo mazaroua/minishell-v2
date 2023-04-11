@@ -5,40 +5,87 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/10 16:25:03 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/04/10 16:54:13 by mazaroua         ###   ########.fr       */
+/*   Created: 2023/04/10 23:47:23 by mazaroua          #+#    #+#             */
+/*   Updated: 2023/04/11 00:55:34 by mazaroua         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int is_last(t_redirections **redirections_)
+int is_last(t_redirections **redirections)
 {
-    t_redirections  *redirections;
+    t_redirections  *curr;
 
-    redirections = *redirections_;
-    while (redirections)
+    if (!*redirections)
+        return (1);
+    curr = *redirections;
+    while (curr)
     {
-        if (redirections->type == LEFTRED || redirections->type == HEREDOC)
+        if (curr->type == RIGHTRED || curr->type == APPEND)
             return (0);
-        redirections = redirections->next;
+        curr = curr->next;
     }
     return (1);
 }
 
-t_redirections  *last_in(t_redirections **redirections_)
+t_redirections  *last_outfile(t_cmd_line **cmd_line)
 {
-    t_redirections  *redirections;
+    t_redirections  *curr;
+    int             fd;
 
-    redirections = *redirections_;
-    while (redirections)
+    curr = (*cmd_line)->redirections;
+    while (curr)
     {
-        if (redirections && (redirections->type == LEFTRED || redirections->type == HEREDOC))
+        if (curr->type == RIGHTRED || curr->type == APPEND)
         {
-            if (redirections->next && is_last(&redirections->next))
-                return (redirections);
+            fd = open(curr->file, O_CREAT | O_RDWR, 0664);
+            if (is_last(&curr->next))
+                return (curr);
         }
-        redirections = redirections->next;
+        curr = curr->next;
+    }
+    return (NULL);
+}
+
+int is_last_infile(t_redirections **redirections)
+{
+    t_redirections  *curr;
+
+    if (!*redirections)
+        return (1);
+    curr = *redirections;
+    while (curr)
+    {
+        if (curr->type == LEFTRED || curr->type == HEREDOC)
+            return (0);
+        curr = curr->next;
+    }
+    return (1);
+}
+
+t_redirections  *last_infile(t_cmd_line **cmd_line, int *no_file)
+{
+    t_redirections  *curr;
+    int fd;
+
+    curr = (*cmd_line)->redirections;
+    while (curr)
+    {
+        if (curr->type == LEFTRED || curr->type == HEREDOC)
+        {
+            fd = open(curr->file, O_RDONLY, 0777);
+            if (fd == -1)
+            {
+                write(2, "minishell: ", 12);
+		        write(2, curr->file, ft_strlen(curr->file));
+		        write(2, ": No such file or directory\n", 28);
+                *no_file = 0;
+                return (NULL);
+            }
+            if (is_last_infile(&curr->next))
+                return (curr);
+        }
+        curr = curr->next;
     }
     return (NULL);
 }
