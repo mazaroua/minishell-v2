@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mzaroual <mzaroual@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 15:38:01 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/04/11 00:56:51 by mazaroua         ###   ########.fr       */
+/*   Updated: 2023/04/12 18:16:12 by mzaroual         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,7 @@ void dup_to_pipe(int **fd, int i, int cmds)
 	if (i == 0)
 	{
 		dup2(fd[i][1], 1);
+		close(fd[i][0]);
 		close(fd[i][1]);
 	}
 	else if (i + 1 == cmds)
@@ -116,6 +117,7 @@ void dup_to_pipe(int **fd, int i, int cmds)
 		dup2(fd[i][1], 1);
 		close(fd[i - 1][0]);
 		close(fd[i][1]);
+		close(fd[i][0]);
 	}
 }
 
@@ -145,6 +147,7 @@ void execute_command(t_cmd_line **cmd_line, t_env_list **env_list, int **fd)
 	int i = 0;
 	int flg = 0;
 	pid_t	pid;
+	int	heredoc_fd;
 	while (cmd_tmp)
 	{
 		if (cmd_tmp->separator == e_pipe)
@@ -154,8 +157,11 @@ void execute_command(t_cmd_line **cmd_line, t_env_list **env_list, int **fd)
 		}
 		if (!(pid = fork()))
 		{
+			ft_heredoc(cmd_line, &heredoc_fd);
 			if (l_outfile)
 				dup_outfile(l_outfile);
+			if (l_infile)
+				dup_infile(l_infile);
 			if (flg)
 				dup_to_pipe(fd, i, count_list(cmd_line));
 			execute_command_2(&cmd_tmp, env_list);
@@ -164,8 +170,8 @@ void execute_command(t_cmd_line **cmd_line, t_env_list **env_list, int **fd)
 		cmd_tmp = cmd_tmp->next;
 		i++;
 	}
-	//while (pid = waitpid(-1, NULL, 0) > 0);
 	while (wait(0) != -1);
+	//while (waitpid(pid, NULL, 0) > 0);
 }
 
 void execution(t_cmd_line **cmd_line, t_env_list **env_list)

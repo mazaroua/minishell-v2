@@ -120,8 +120,8 @@ void	ft_cd(char *path, t_env_list **env_list);
 void    ft_pwd(void);
 t_redirections  *last_outfile(t_cmd_line **cmd_line);
 t_redirections  *last_infile(t_cmd_line **cmd_line, int *no_file);
-dup_outfile(t_redirections *redirection);
-
+void	dup_outfile(t_redirections *redirection);
+void	dup_infile(t_redirections *redirection);
 
 
 void	ft_putstr(char	*str);
