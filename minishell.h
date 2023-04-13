@@ -72,6 +72,18 @@ typedef struct tools
     int dollar_in;
 }t_tools;
 
+typedef struct exec_tools
+{
+    t_cmd_line		*cmd_tmp;
+    int 			no_file;
+    t_redirections	*l_infile;
+    t_redirections	*l_outfile;
+    int 			i;
+    int 			flg;
+    pid_t			pid;
+    int				heredoc_fd;
+}t_exec_tools;
+
 // Tokenizer Utils
 t_token_list    *tokenizer(char *line, t_tools *tools);
 char			*is_redirections(t_token_list **tokens, char *line, t_tools *tools);
@@ -122,6 +134,7 @@ t_redirections  *last_outfile(t_cmd_line **cmd_line);
 t_redirections  *last_infile(t_cmd_line **cmd_line, int *no_file);
 void	dup_outfile(t_redirections *redirection);
 void	dup_infile(t_redirections *redirection);
+void    ft_heredoc(t_cmd_line **cmd_line, int *fd);
 
 
 void	ft_putstr(char	*str);

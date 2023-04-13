@@ -6,7 +6,7 @@
 /*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 16:09:06 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/04/08 16:27:10 by mazaroua         ###   ########.fr       */
+/*   Updated: 2023/04/13 15:25:46 by mazaroua         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@ void ft_cd(char *path, t_env_list **env_list)
     }
     else
          i = chdir(path);
-    if (i != 0)
-        perror("cd");
+    // if (i != 0)
+    //     perror("cd");
 }
 
 void    ft_pwd(void)
@@ -39,6 +39,10 @@ void    ft_pwd(void)
    if (getcwd(cwd, sizeof(cwd)) != NULL)
 	   ft_putstr(cwd);
    else
+   {
 	   perror("getcwd() error");
+      exit(1);
+    }
 	ft_putstr("\n");
+    exit(0);
 }

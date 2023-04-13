@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzaroual <mzaroual@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 15:38:01 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/04/12 18:16:12 by mzaroual         ###   ########.fr       */
+/*   Updated: 2023/04/13 16:58:52 by mazaroua         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,7 @@ void	close_pipes(int **fd, int i, int cmds, int flag)
 void execute_command(t_cmd_line **cmd_line, t_env_list **env_list, int **fd)
 {
 	t_cmd_line *cmd_tmp = *cmd_line;
-	int no_file;
+	int no_file = 1;
 	t_redirections	*l_infile = last_infile(cmd_line, &no_file);
 	if (!no_file)
 		return ;
@@ -155,9 +155,9 @@ void execute_command(t_cmd_line **cmd_line, t_env_list **env_list, int **fd)
 			pipe(fd[i]);
 			flg = 1;
 		}
+		ft_heredoc(&cmd_tmp, &heredoc_fd);
 		if (!(pid = fork()))
 		{
-			ft_heredoc(cmd_line, &heredoc_fd);
 			if (l_outfile)
 				dup_outfile(l_outfile);
 			if (l_infile)
@@ -171,14 +171,15 @@ void execute_command(t_cmd_line **cmd_line, t_env_list **env_list, int **fd)
 		i++;
 	}
 	while (wait(0) != -1);
-	//while (waitpid(pid, NULL, 0) > 0);
 }
 
 void execution(t_cmd_line **cmd_line, t_env_list **env_list)
 {
-	// if ((*cmd_line) && main_builtins(cmd_line) && (*cmd_line)->separator == e_nline)
-	//     execute_builtins(cmd_line, env_list);
-	if ((*cmd_line))
+	if ((*cmd_line) && main_builtins(cmd_line) && (*cmd_line)->separator == e_nline)
+	{
+		execute_builtins(cmd_line, env_list);
+	}
+	else if ((*cmd_line))
 	{
 		int **fd = malloc(sizeof(int *) * count_list(cmd_line));
 		int i = 0;

@@ -6,7 +6,7 @@
 /*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/06 15:26:43 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/04/09 16:02:25 by mazaroua         ###   ########.fr       */
+/*   Updated: 2023/04/13 16:43:14 by mazaroua         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,8 @@ char    *prompt(void)
     char	*line;
 
 	line = readline("\x1B[36m""minishell$ ""\001\e[0m\002");
+	if (!line)
+		exit(0);
 	add_history(line);
 	line = remove_additional_spaces(line);
     return (line);

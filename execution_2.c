@@ -6,7 +6,7 @@
 /*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/09 14:07:54 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/04/09 15:37:25 by mazaroua         ###   ########.fr       */
+/*   Updated: 2023/04/13 16:01:06 by mazaroua         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,16 @@ int	builtins(char	*cmd)
 
 void	exec_builtins(char	**str, t_env_list **env_list, int code)
 {
-	
 	if (code == 2)
+    {
 		ft_cd(str[1], env_list);
+        exit(0);
+    }
 	else if (code == 3)
+    {
 		ft_pwd();
+        exit(0);
+    }
 	
 }
 
