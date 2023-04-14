@@ -127,14 +127,22 @@ void	exec_builtins(char	**str, t_env_list **env_list, int code);
 char    *get_home_var(t_env_list **env_list);
 char	**get_path(t_env_list **env_list);
 int     count_list(t_cmd_line **cmd_line);
+int     count_envlist(t_env_list **env_list);
+char    **create_envp(t_env_list **env_list);
 
-void	ft_cd(char *path, t_env_list **env_list);
-void    ft_pwd(void);
+
+void			ft_cd(char *path, t_env_list **env_list);
+void    		ft_pwd(void);
 t_redirections  *last_outfile(t_cmd_line **cmd_line);
 t_redirections  *last_infile(t_cmd_line **cmd_line, int *no_file);
-void	dup_outfile(t_redirections *redirection);
-void	dup_infile(t_redirections *redirection);
-void    ft_heredoc(t_cmd_line **cmd_line, int *fd);
+void 			dup_to_pipe(int **fd, int i, int cmds);
+void			dup_outfile(t_redirections *redirection);
+void			dup_infile(t_redirections *redirection);
+void			close_pipes(int **fd, int i, int cmds, int flag);
+void    		ft_heredoc(t_cmd_line **cmd_line, int *fd);
+void			execute_command_2(t_cmd_line **cmd_line, t_env_list **env_list);
+void			execve_func(char **cmd, t_env_list **env_list);
+char            *check_command_in_path(char **path, char *cmd);
 
 
 void	ft_putstr(char	*str);

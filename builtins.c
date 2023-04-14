@@ -6,7 +6,7 @@
 /*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 16:09:06 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/04/13 15:25:46 by mazaroua         ###   ########.fr       */
+/*   Updated: 2023/04/14 22:28:57 by mazaroua         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,15 @@ void ft_cd(char *path, t_env_list **env_list)
         i = chdir(home_dir);
     }
     else
-         i = chdir(path);
-    // if (i != 0)
-    //     perror("cd");
+    {
+        i = chdir(path);
+        if (i == -1)
+        {
+            write (2, "minishell: ", ft_strlen("minishell: "));
+            write (2, path , ft_strlen(path));
+            write (2, ": No such file or directory\n", ft_strlen(": No such file or directory\n"));
+        }
+    }
 }
 
 void    ft_pwd(void)

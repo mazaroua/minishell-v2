@@ -6,7 +6,7 @@
 /*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 16:13:08 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/04/09 15:21:06 by mazaroua         ###   ########.fr       */
+/*   Updated: 2023/04/14 22:33:29 by mazaroua         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,4 +63,39 @@ int count_list(t_cmd_line **cmd_line)
         cmd = cmd->next;
     }
     return (count);
+}
+
+int count_envlist(t_env_list **env_list)
+{
+	t_env_list *envlist;
+	int i;
+
+	envlist = *env_list;
+	i = 0;
+	while (envlist)
+	{
+		i++;
+		envlist = envlist->next;
+	}
+	return (i);
+}
+
+char **create_envp(t_env_list **env_list)
+{
+	t_env_list *envlist;
+	char **envp;
+	int i;
+	char *tmp;
+
+	envlist = *env_list;
+	envp = malloc(sizeof(char *) * count_envlist(env_list) + 1);
+	i = 0;
+	while (envlist)
+	{
+		tmp = ft_strjoin(envlist->name, "=");
+		envp[i] = ft_strjoin(tmp, envlist->value);
+		envlist = envlist->next;
+		i++;
+	}
+	return (envp);
 }
