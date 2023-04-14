@@ -6,7 +6,7 @@
 /*   By: mazaroua <mazaroua@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 15:38:01 by mazaroua          #+#    #+#             */
-/*   Updated: 2023/04/13 16:58:52 by mazaroua         ###   ########.fr       */
+/*   Updated: 2023/04/14 01:11:56 by mazaroua         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,8 @@ void execve_func(char **cmd, t_env_list **env_list)
 	envp = create_envp(env_list);
 	if (!cmd_)
 	{
-		perror("Command not found");
+		write( 1, "minishell: ", ft_strlen("minishell: "));
+		write (1, "Command not found\n", ft_strlen("Command not found\n"));
 		exit(0);
 	}
 	execve(cmd_, cmd, envp);
@@ -140,10 +141,8 @@ void execute_command(t_cmd_line **cmd_line, t_env_list **env_list, int **fd)
 {
 	t_cmd_line *cmd_tmp = *cmd_line;
 	int no_file = 1;
-	t_redirections	*l_infile = last_infile(cmd_line, &no_file);
-	if (!no_file)
-		return ;
-	t_redirections	*l_outfile = last_outfile(cmd_line);
+	t_redirections	*l_infile;
+	t_redirections	*l_outfile;
 	int i = 0;
 	int flg = 0;
 	pid_t	pid;
@@ -158,12 +157,16 @@ void execute_command(t_cmd_line **cmd_line, t_env_list **env_list, int **fd)
 		ft_heredoc(&cmd_tmp, &heredoc_fd);
 		if (!(pid = fork()))
 		{
+			l_infile = last_infile(&cmd_tmp, &no_file);
+			if (!no_file)
+				return ;
+			l_outfile = last_outfile(&cmd_tmp);
+			if (flg)
+				dup_to_pipe(fd, i, count_list(cmd_line));
 			if (l_outfile)
 				dup_outfile(l_outfile);
 			if (l_infile)
 				dup_infile(l_infile);
-			if (flg)
-				dup_to_pipe(fd, i, count_list(cmd_line));
 			execute_command_2(&cmd_tmp, env_list);
 		}
 		close_pipes(fd , i, count_list(cmd_line), flg);
@@ -177,6 +180,8 @@ void execution(t_cmd_line **cmd_line, t_env_list **env_list)
 {
 	if ((*cmd_line) && main_builtins(cmd_line) && (*cmd_line)->separator == e_nline)
 	{
+		int	fd;
+		ft_heredoc(cmd_line, &fd);
 		execute_builtins(cmd_line, env_list);
 	}
 	else if ((*cmd_line))
